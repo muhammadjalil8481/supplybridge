@@ -1,0 +1,30 @@
+{
+  "name": "supplybridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.26.0",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}
