@@ -1,16 +1,16 @@
 import app from "./app.js";
+import { env } from "./config/env.js";
+import { pool } from "./database/pool.js";
+import { checkDatabaseConnection } from "./database/check-connectivity.js";
+import type { Server } from "node:http";
 
-const PORT = 3000;
 const SHUTDOWN_TIMEOUT_MS = 20_000;
 
-const server = app.listen(PORT, () => {
-  console.log(`SupplyBridge running on port ${PORT}`);
-});
-
 let isShuttingDown = false;
+let server: Server | undefined;
 
 function shutdown(signal: string): void {
-  if (isShuttingDown) {
+  if (isShuttingDown || server === undefined) {
     return;
   }
 
@@ -25,17 +25,41 @@ function shutdown(signal: string): void {
 
   forceShutdownTimer.unref();
 
-  server.close((error) => {
+  server.close(async (error) => {
     if (error) {
-      console.error("Error while closing HTTP server:", error);
+      console.error("HTTP server shutdown error:", error);
       process.exitCode = 1;
     } else {
       console.log("HTTP server closed successfully.");
     }
 
+    try {
+      await pool.end();
+      console.log("MySQL pool closed successfully.");
+    } catch (dbError) {
+      console.error("MySQL shutdown error:", dbError);
+      process.exitCode = 1;
+    }
+
     clearTimeout(forceShutdownTimer);
   });
 }
+
+async function startServer(): Promise<void> {
+  try {
+    await checkDatabaseConnection();
+
+    server = app.listen(env.PORT, () => {
+      console.log(`SupplyBridge running on port ${env.PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start SupplyBridge:", error);
+    process.exitCode = 1;
+    await pool.end();
+  }
+}
+
+void startServer();
 
 process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
