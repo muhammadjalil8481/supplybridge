@@ -1,7 +1,7 @@
 import app from "./app.js";
 
 const PORT = 3000;
-const SHUTDOWN_TIMEOUT_MS = 10_000;
+const SHUTDOWN_TIMEOUT_MS = 20_000;
 
 const server = app.listen(PORT, () => {
   console.log(`SupplyBridge running on port ${PORT}`);

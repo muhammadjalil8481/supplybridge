@@ -12,7 +12,11 @@
     "dev": "tsx watch src/server.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "db:migrate": "knex migrate:latest",
+    "db:make": "knex migrate:make",
+    "db:rollback": "knex migrate:rollback",
+    "db:status": "knex migrate:status"
   },
   "keywords": [],
   "author": "",
@@ -21,10 +25,14 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.6",
+    "knex": "^3.3.0",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },
   "dependencies": {
-    "express": "^5.3.0"
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "mysql2": "^3.24.6",
+    "zod": "^4.6.7"
   }
 }

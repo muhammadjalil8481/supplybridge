@@ -1,12 +1,8 @@
 import express from "express";
+import { healthRouter } from "./modules/health/health.routes.js";
 
 const app = express();
 
-app.get("/health", (_req, res) => {
-  res.status(200).json({
-    status: "ok",
-    application: "SupplyBridge"
-  });
-});
+app.use("/health", healthRouter)
 
 export default app;
