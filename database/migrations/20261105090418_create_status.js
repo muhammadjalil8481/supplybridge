@@ -2,7 +2,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.up = async function(knex) {
+export async function up(knex) {
     await knex.raw(`
         CREATE TABLE status (
           id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -21,6 +21,6 @@ exports.up = async function(knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = async function(knex) {
+export async function down(knex) {
     await knex.raw(`DROP TABLE status;`);
 };

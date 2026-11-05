@@ -2,7 +2,7 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.up = async function (knex) {
+export async function up(knex) {
   await knex.raw(`
         INSERT INTO status (entity_type, code, description)
         VALUES
@@ -15,11 +15,11 @@ exports.up = async function (knex) {
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.down = async function (knex) {
+export async function down(knex) {
   await knex.raw(`
         DELETE FROM status
         WHERE entity_type = 'ORGANIZATION'
-          AND name IN ('ACTIVE', 'SUSPENDED')
+          AND code IN ('ACTIVE', 'SUSPENDED')
         LIMIT 2;
       `);
 };
