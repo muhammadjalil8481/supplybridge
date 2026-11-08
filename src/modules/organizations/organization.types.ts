@@ -3,7 +3,7 @@ export type OrganizationStatus =
   | "SUSPENDED";
 
 export interface Organization {
-  id: number;
+  id: string;
   name: string;
   status: OrganizationStatus;
 }

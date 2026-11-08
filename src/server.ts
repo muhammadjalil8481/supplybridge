@@ -8,9 +8,23 @@ const SHUTDOWN_TIMEOUT_MS = 20_000;
 
 let isShuttingDown = false;
 let server: Server | undefined;
+let poolCleanupPromise: Promise<void> | undefined;
+
+function cleanupPool(): Promise<void> {
+  if (!poolCleanupPromise) {
+    poolCleanupPromise = pool.end()
+      .then(() => console.log("MySQL pool closed successfully."))
+      .catch((dbError: unknown) => {
+        console.error("MySQL shutdown error:", dbError);
+        process.exitCode = 1;
+      });
+  }
+
+  return poolCleanupPromise;
+}
 
 function shutdown(signal: string): void {
-  if (isShuttingDown || server === undefined) {
+  if (isShuttingDown) {
     return;
   }
 
@@ -23,9 +37,16 @@ function shutdown(signal: string): void {
     process.exit(1);
   }, SHUTDOWN_TIMEOUT_MS);
 
-  forceShutdownTimer.unref();
+  const closePool = (): void => {
+    void cleanupPool().finally(() => clearTimeout(forceShutdownTimer));
+  };
 
-  server.close(async (error) => {
+  if (server === undefined) {
+    closePool();
+    return;
+  }
+
+  server.close((error) => {
     if (error) {
       console.error("HTTP server shutdown error:", error);
       process.exitCode = 1;
@@ -33,15 +54,7 @@ function shutdown(signal: string): void {
       console.log("HTTP server closed successfully.");
     }
 
-    try {
-      await pool.end();
-      console.log("MySQL pool closed successfully.");
-    } catch (dbError) {
-      console.error("MySQL shutdown error:", dbError);
-      process.exitCode = 1;
-    }
-
-    clearTimeout(forceShutdownTimer);
+    closePool();
   });
 }
 
@@ -49,13 +62,29 @@ async function startServer(): Promise<void> {
   try {
     await checkDatabaseConnection();
 
-    server = app.listen(env.PORT, () => {
+    if (isShuttingDown) {
+      await cleanupPool();
+      return;
+    }
+
+    let listeningServer: Server;
+    const handleServerError = (error: Error): void => {
+      listeningServer.off("error", handleServerError);
+      console.error("Failed to start SupplyBridge:", error);
+      process.exitCode = 1;
+      void cleanupPool();
+    };
+
+    listeningServer = app.listen(env.PORT, () => {
+      listeningServer.off("error", handleServerError);
       console.log(`SupplyBridge running on port ${env.PORT}`);
     });
+    server = listeningServer;
+    listeningServer.once("error", handleServerError);
   } catch (error) {
     console.error("Failed to start SupplyBridge:", error);
     process.exitCode = 1;
-    await pool.end();
+    await cleanupPool();
   }
 }
 

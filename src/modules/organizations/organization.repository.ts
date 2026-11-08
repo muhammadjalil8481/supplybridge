@@ -1,5 +1,5 @@
 import type { Organization } from "./organization.types.js";
 
 export interface OrganizationRepository {
-  findById(id: number): Promise<Organization | null>;
+  findById(id: string): Promise<Organization | null>;
 }
