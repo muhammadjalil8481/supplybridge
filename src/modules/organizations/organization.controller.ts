@@ -1,12 +1,19 @@
 import type { OrganizationService } from "./organization.service.js";
 import type { Request, Response } from "express";
+import type { OrganizationIdParams } from "./organization.schema.js";
+
+type OrganizationRequestLocals = {
+  validatedParams: OrganizationIdParams;
+};
 
 export class OrganizationController {
   constructor(private readonly service: OrganizationService) {}
 
-  findById = async (req: Request, res: Response): Promise<void> => {
-
-    const organizationId = req.params.id as string;
+  findById = async (
+    _req: Request,
+    res: Response<unknown, OrganizationRequestLocals>,
+  ): Promise<void> => {
+    const { id: organizationId } = res.locals.validatedParams;
 
     const organization = await this.service.getById(organizationId);
     if (!organization) {

@@ -1,8 +1,8 @@
 import type { RequestHandler, Request, Response, NextFunction } from "express";
 import { z } from "zod";
 
-export function validateParams<T extends z.ZodType>(
-  schema: T,
+export function validateParams(
+  schema: z.ZodType,
 ): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req.params);
@@ -16,6 +16,7 @@ export function validateParams<T extends z.ZodType>(
       return;
     }
 
+    res.locals.validatedParams = result.data;
     next();
   };
 }

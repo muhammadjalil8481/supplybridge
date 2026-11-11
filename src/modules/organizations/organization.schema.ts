@@ -4,3 +4,5 @@ import { idSchema } from "../../common/schemas/id.schema.js";
 export const organizationIdParamsSchema = z.object({
   id: idSchema("Organization ID")
 });
+
+export type OrganizationIdParams = z.output<typeof organizationIdParamsSchema>;
