@@ -2,5 +2,5 @@
 @organizationId = 1
 
 ### Get organization by ID
-GET {{baseUrl}}/organizations/aaa
+GET {{baseUrl}}/organizations/1
 Accept: application/json
