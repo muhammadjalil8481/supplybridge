@@ -1,0 +1,6 @@
+@baseUrl = http://localhost:3000
+@organizationId = 1
+
+### Get organization by ID
+GET {{baseUrl}}/organizations/aaa
+Accept: application/json

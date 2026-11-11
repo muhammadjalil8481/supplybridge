@@ -1,3 +1,5 @@
+import type { RowDataPacket } from "mysql2";
+
 export type OrganizationStatus =
   | "ACTIVE"
   | "SUSPENDED";
