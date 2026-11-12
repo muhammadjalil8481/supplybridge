@@ -1,22 +1,36 @@
-import type { RequestHandler, Request, Response, NextFunction } from "express";
+import type { RequestHandler } from "express";
 import { z } from "zod";
 
-export function validateParams(
+type ValidationTarget = "params" | "body";
+
+function validate(
+  target: ValidationTarget,
   schema: z.ZodType,
 ): RequestHandler {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req.params);
+  return (req, res, next) => {
+    const result = schema.safeParse(req[target]);
 
     if (!result.success) {
       res.status(400).json({
         status: "error",
-        message: "Invalid request parameters",
+        message: `Invalid request ${target === "params" ? "parameters" : "body"}`,
         errors: z.flattenError(result.error),
       });
       return;
     }
 
-    res.locals.validatedParams = result.data;
+    if (target === "params") {
+      res.locals.validatedParams = result.data;
+    } else {
+      res.locals.validatedBody = result.data;
+    }
+
     next();
   };
 }
+
+export const validateParams = (schema: z.ZodType): RequestHandler =>
+  validate("params", schema);
+
+export const validateBody = (schema: z.ZodType): RequestHandler =>
+  validate("body", schema);

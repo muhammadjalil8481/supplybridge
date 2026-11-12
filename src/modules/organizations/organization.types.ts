@@ -9,3 +9,8 @@ export interface Organization {
   name: string;
   status: OrganizationStatus;
 }
+
+export interface CreateOrganizationParams {
+  name: string;
+  status_id: string;
+}

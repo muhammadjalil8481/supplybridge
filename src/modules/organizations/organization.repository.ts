@@ -1,6 +1,6 @@
 import type { RowDataPacket } from "mysql2";
 import { pool } from "../../database/pool.js";
-import type { Organization } from "./organization.types.js";
+import type { CreateOrganizationParams, Organization } from "./organization.types.js";
 
 export interface OrganizationRow extends RowDataPacket {
   id: string;
@@ -37,5 +37,15 @@ export class OrganizationRepository {
       name: organization.name,
       status: organization.status as Organization["status"],
     };
+  }
+
+  async createOne(params: CreateOrganizationParams): Promise<void> {
+    await pool.execute(
+      `
+        INSERT INTO organizations (name, status_id, status_entity_type)
+        VALUES (?, ?, 'ORGANIZATION')
+      `,
+      [params.name, params.status_id]
+    );
   }
 }

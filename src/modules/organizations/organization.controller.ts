@@ -25,4 +25,13 @@ export class OrganizationController {
       data: organization,
     });
   }
+
+  createOne = async (
+    req: Request<unknown, unknown, { name: string; status_id: string }>,
+    res: Response,
+  ): Promise<void> => {
+    const { name, status_id } = req.body;
+    await this.service.createOne({ name, status_id });
+    res.status(201).json({ status: "ok", message: "Organization created successfully" });
+  }
 }
